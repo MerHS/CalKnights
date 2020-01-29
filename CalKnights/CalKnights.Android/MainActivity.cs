@@ -16,10 +16,12 @@ using XLabs.Platform.Device;
 namespace CalKnights.Droid
 {
     [Activity(Label = "CalKnights", Icon = "@drawable/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
-    public class MainActivity : Xamarin.Forms.Platform.Android.FormsAppCompatActivity
+    public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle bundle)
         {
+            global::Xamarin.Forms.Forms.Init(this, bundle);
+
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
 
@@ -32,8 +34,7 @@ namespace CalKnights.Droid
                 return new TesseractApi(ApplicationContext, Tesseract.Droid.AssetsDeployment.OncePerInitialization);
             });
             Resolver.SetResolver(new TinyResolver(container));
-
-            Xamarin.Forms.Forms.Init(this, bundle);
+            
             LoadApplication(new App());
         }
     }

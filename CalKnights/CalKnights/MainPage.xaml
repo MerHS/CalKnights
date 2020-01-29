@@ -163,10 +163,16 @@
                     Command="{Binding UnaryOperation}"
                     CommandParameter="invert" />
 
-            <Button Text="+/&#x2013;"
+            <Button Text="&#xF53E;"
                     Grid.Row="8" Grid.Column="0"
                     Command="{Binding UnaryOperation}"
-                    CommandParameter="negate" />
+                    CommandParameter="negate">
+                <Button.FontFamily>
+                    <OnPlatform x:TypeArguments="x:String" 
+                                Android="fa-regular-400.otf#Font Awesome 5 Free Regular" 
+                                iOS="Font Awesome 5 Free"/>
+                </Button.FontFamily>
+            </Button>
 
             <Button Text="x&#x21D4;y"
                     Grid.Row="9" Grid.Column="0"
