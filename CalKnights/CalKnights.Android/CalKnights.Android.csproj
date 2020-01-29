@@ -52,6 +52,9 @@
     <PackageReference Include="XLabs.IoC.TinyIoC">
       <Version>2.0.5782</Version>
     </PackageReference>
+    <PackageReference Include="XLabs.Platform">
+      <Version>2.0.5782</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />

@@ -4,6 +4,11 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Xamarin.Forms;
+using Tesseract;
+using XLabs.Ioc;
+using XLabs.Platform.Device;
+using XLabs.Platform.Services.Media;
+using System.Threading.Tasks;
 
 namespace CalKnights
 {
@@ -14,8 +19,14 @@ namespace CalKnights
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private readonly ITesseractApi _tesseractApi;
+        private readonly IDevice _device;
+
         public CalKnightsViewModel()
-        {
+        { 
+            _tesseractApi = Resolver.Resolve<ITesseractApi>();
+            _device = Resolver.Resolve<IDevice>();
+
             ClearCommand = new Command(
                 execute: () =>
                 {
@@ -48,8 +59,12 @@ namespace CalKnights
                 });
 
             DigitCommand = new Command<string>(
-                execute: (string arg) =>
+                execute: async (string arg) =>
                 {
+                    var pic = await TakePic();
+                    if (!_tesseractApi.Initialized)
+                        await _tesseractApi.Init("kor");
+
                     Entry += arg;
                     if (Entry.StartsWith("0") && !Entry.StartsWith("0."))
                     {
@@ -128,6 +143,17 @@ namespace CalKnights
                 {
                     return stack.Count > 1;
                 });
+        }
+
+        private async Task<MediaFile> TakePic()
+        {
+            var mediaStorageOptions = new CameraMediaStorageOptions
+            {
+                DefaultCamera = CameraDevice.Rear
+            };
+            var mediaFile = await _device.MediaPicker.TakePhotoAsync(mediaStorageOptions);
+
+            return mediaFile;
         }
 
         void RefreshCanExecutes()
