@@ -35,7 +35,8 @@ namespace CalKnights.Droid
             });
             Resolver.SetResolver(new TinyResolver(container));
 
-            Xamarin.Forms.Forms.Init(this, bundle);
+            global::Xamarin.Forms.Forms.Init(this, bundle);
+            global::Xamarin.Forms.FormsMaterial.Init(this, bundle);
             LoadApplication(new App());
         }
 

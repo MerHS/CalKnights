@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CalKnights"
-             x:Class="CalKnights.MainPage">
+             x:Class="CalKnights.MainPage"
+             Visual="Material">
     <ContentPage.Padding>
         <OnPlatform x:TypeArguments="Thickness">
             <On Platform="iOS" Value="0, 20, 0, 0" />
@@ -13,7 +14,7 @@
         <local:CalKnightsViewModel />
     </ContentPage.BindingContext>
 
-    <ContentPage.Resources>
+    <!--<ContentPage.Resources>
         <ResourceDictionary>
             <Style TargetType="Grid">
                 <Setter Property="RowSpacing" Value="2" />
@@ -30,7 +31,7 @@
                 <Setter Property="BorderColor" Value="Black" />
             </Style>
         </ResourceDictionary>
-    </ContentPage.Resources>
+    </ContentPage.Resources>-->
 
     <ContentPage.Content>
         <ScrollView>
@@ -50,10 +51,12 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Label Text="사진" Grid.Row="0" Padding="10,0" HorizontalTextAlignment="End"/>
+                    <Frame Grid.Row="0" Padding="10,0" BackgroundColor="AliceBlue">
+                        <Label Text="사진" HorizontalTextAlignment="End"/>
+                    </Frame>
                     
-                    <Frame Grid.Row="1" Padding="0">
-                        <Image Source="{Binding OCRImageSource}" Padding="5,5"
+                    <Frame Grid.Row="1" Padding="5,5">
+                        <Image Source="{Binding OCRImageSource}" 
                                HorizontalOptions="CenterAndExpand" Aspect="AspectFill" />
                     </Frame>
                     
