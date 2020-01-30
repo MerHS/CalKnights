@@ -12,6 +12,7 @@ using Tesseract.Droid;
 using XLabs.Ioc;
 using XLabs.Ioc.TinyIOC;
 using XLabs.Platform.Device;
+using Plugin.CurrentActivity;
 
 namespace CalKnights.Droid
 {
@@ -25,6 +26,7 @@ namespace CalKnights.Droid
 
             base.OnCreate(bundle);
 
+            CrossCurrentActivity.Current.Init(this, bundle);
             var container = TinyIoCContainer.Current;
             container.Register<IDevice>(AndroidDevice.CurrentDevice);
             container.Register<ITesseractApi>((cont, parameters) =>
@@ -36,6 +38,12 @@ namespace CalKnights.Droid
             Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication(new App());
         }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
+        {
+            Plugin.Permissions.PermissionsImplementation.Current.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
     }
 }
 

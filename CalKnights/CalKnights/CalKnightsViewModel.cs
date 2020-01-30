@@ -7,161 +7,92 @@ using Xamarin.Forms;
 using Tesseract;
 using XLabs.Ioc;
 using XLabs.Platform.Device;
-using XLabs.Platform.Services.Media;
 using System.Threading.Tasks;
+using Plugin.Media;
+using Plugin.Media.Abstractions;
 
 namespace CalKnights
 {
     public class CalKnightsViewModel : INotifyPropertyChanged
     {
-        string entry = "0";
-        Stack<double> stack = new Stack<double>();
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly ITesseractApi _tesseractApi;
         private readonly IDevice _device;
+
+        private bool _imageLoading = false;
+        private ImageSource _ocrImageSource;
 
         public CalKnightsViewModel()
         { 
             _tesseractApi = Resolver.Resolve<ITesseractApi>();
             _device = Resolver.Resolve<IDevice>();
 
-            ClearCommand = new Command(
-                execute: () =>
-                {
-                    stack.Clear();
-                    Entry = "0";
-                    RefreshCanExecutes();
-                    RefreshStackDisplay();
-                });
+            //DigitCommand = new Command<string>(
+            //    execute: async (string arg) =>
+            //    {
+            //        _takePictureButton.Text = "Working...";
+            //        _takePictureButton.IsEnabled = false;
 
-            ClearEntryCommand = new Command(
-                execute: () =>
-                {
-                    Entry = "0";
-                    RefreshCanExecutes();
-                });
+            //        //TesseractAPI 초기화 (언어 선정)
+            //        if (!_tesseractApi.Initialized)
+            //            await _tesseractApi.Init("eng");
 
-            BackspaceCommand = new Command(
-                execute: () =>
+            //        //카메라 촬영 후 byte[] 형식 변수로 받아오기
+            //        var photo = await TakePic();
+            //        if (photo != null)
+            //        {
+            //            var imageBytes = new byte[photo.Source.Length];
+            //            photo.Source.Position = 0;
+            //            photo.Source.Read(imageBytes, 0, (int)photo.Source.Length);
+            //            photo.Source.Position = 0;
+
+            //            //문자 인식 수행
+            //            var tessResult = await _tesseractApi.SetImage(imageBytes);
+
+            //            //촬영이미지, 인식 결과 출력
+            //            if (tessResult)
+            //            {
+            //                _takenImage.Source = ImageSource.FromStream(() => photo.Source);
+            //                _recognizedTextLabel.Text = _tesseractApi.Text;
+            //            }
+            //        }
+
+            //        //버튼 상태 복구
+            //        _takePictureButton.Text = "New scan";
+            //        _takePictureButton.IsEnabled = true;
+            //    },
+            //    canExecute: (string arg) =>
+            //    {
+            //        return !(arg == "." && Entry.Contains("."));
+            //    });
+            PickImageCommand = new Command(
+                execute: async () =>
                 {
-                    Entry = Entry.Substring(0, Entry.Length - 1);
-                    if (Entry == "")
+                    ImageLoading = true;
+
+                    var imageFile = await TakePic();
+                    if (imageFile != null)
                     {
-                        Entry = "0";
-                    }
-                    RefreshCanExecutes();
-                },
-                canExecute: () =>
-                {
-                    return Entry.Length > 1 || Entry != "0";
-                });
-
-            DigitCommand = new Command<string>(
-                execute: async (string arg) =>
-                {
-                    var pic = await TakePic();
-                    if (!_tesseractApi.Initialized)
-                        await _tesseractApi.Init("kor");
-
-                    Entry += arg;
-                    if (Entry.StartsWith("0") && !Entry.StartsWith("0."))
-                    {
-                        Entry = Entry.Substring(1);
-                    }
-                    RefreshCanExecutes();
-                },
-                canExecute: (string arg) =>
-                {
-                    return !(arg == "." && Entry.Contains("."));
-                });
-
-            EnterCommand = new Command(
-                execute: () =>
-                {
-                    stack.Push(double.Parse(Entry));
-                    Entry = "0";
-                    RefreshStackDisplay();
-                    RefreshCanExecutes();
-                });
-
-            UnaryOperation = new Command<string>(
-                (string op) =>
-                {
-                    double arg = stack.Pop();
-                    double result = 0;
-
-                    switch (op)
-                    {
-                        case "log10": result = Math.Log10(arg); break;
-                        case "log": result = Math.Log(arg); break;
-                        case "exp": result = Math.Exp(arg); break;
-                        case "sqrt": result = Math.Sqrt(arg); break;
-                        case "sin": result = Math.Sin(arg); break;
-                        case "cos": result = Math.Cos(arg); break;
-                        case "tan": result = Math.Tan(arg); break;
-                        case "invert": result = 1 / arg; break;
-                        case "asin": result = Math.Asin(arg); break;
-                        case "acos": result = Math.Acos(arg); break;
-                        case "atan": result = Math.Atan(arg); break;
-                        case "negate": result = -arg; break;
-                        case "radians": result = Math.PI * arg / 180; break;
-                        case "degrees": result = 180 * arg / Math.PI; break;
+                        OCRImageSource = ImageSource.FromStream(() => { return imageFile.GetStream(); });
                     }
 
-                    stack.Push(result);
-                    RefreshStackDisplay();
-                },
-                (string op) =>
-                {
-                    return stack.Count > 0;
-                });
-
-            BinaryOperation = new Command<string>(
-                execute: (string op) =>
-                {
-                    double x = stack.Pop();
-                    double y = stack.Pop();
-                    double result = 0;
-
-                    switch (op)
-                    {
-                        case "divide": result = y / x; break;
-                        case "multiply": result = y * x; break;
-                        case "subtract": result = y - x; break;
-                        case "add": result = y + x; break;
-                        case "pow": result = Math.Pow(y, x); break;
-                        case "swap": stack.Push(x); result = y; break;
-                    }
-
-                    stack.Push(result);
-                    RefreshCanExecutes();
-                    RefreshStackDisplay();
-                },
-                canExecute: (string op) =>
-                {
-                    return stack.Count > 1;
+                    ImageLoading = false;
                 });
         }
-
         private async Task<MediaFile> TakePic()
         {
-            var mediaStorageOptions = new CameraMediaStorageOptions
-            {
-                DefaultCamera = CameraDevice.Rear
-            };
-            var mediaFile = await _device.MediaPicker.TakePhotoAsync(mediaStorageOptions);
+            await CrossMedia.Current.Initialize();
 
-            return mediaFile;
+            var file = await CrossMedia.Current.PickPhotoAsync();
+
+            return file;
         }
 
         void RefreshCanExecutes()
         {
-            ((Command)BackspaceCommand).ChangeCanExecute();
-            ((Command)DigitCommand).ChangeCanExecute();
-            ((Command)UnaryOperation).ChangeCanExecute();
-            ((Command)BinaryOperation).ChangeCanExecute();
+            //((Command)BackspaceCommand).ChangeCanExecute();
+            //((Command)DigitCommand).ChangeCanExecute();
         }
 
         void RefreshStackDisplay()
@@ -170,47 +101,17 @@ namespace CalKnights
             OnPropertyChanged("YStackValue");
         }
 
-        public string Entry
-        {
-            private set { SetProperty(ref entry, value); }
-            get { return entry; }
+        public bool ImageLoading {
+            private set { SetProperty(ref _imageLoading, value); }
+            get { return _imageLoading; }
         }
 
-        public string XStackValue
-        {
-            get { return stack.Count > 0 ? stack.Peek().ToString() : ""; }
+        public ImageSource OCRImageSource {
+            private set { SetProperty(ref _ocrImageSource, value); }
+            get { return _ocrImageSource; }
         }
 
-        public string YStackValue
-        {
-            get
-            {
-                string result = "";
-
-                if (stack.Count > 1)
-                {
-                    double hold = stack.Pop();
-                    result = stack.Peek().ToString();
-                    stack.Push(hold);
-                }
-
-                return result;
-            }
-        }
-
-        public ICommand ClearCommand { private set; get; }
-
-        public ICommand ClearEntryCommand { private set; get; }
-
-        public ICommand BackspaceCommand { private set; get; }
-
-        public ICommand DigitCommand { private set; get; }
-
-        public ICommand EnterCommand { private set; get; }
-
-        public ICommand UnaryOperation { private set; get; }
-
-        public ICommand BinaryOperation { private set; get; }
+        public ICommand PickImageCommand { private set; get; }
 
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
