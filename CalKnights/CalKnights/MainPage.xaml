@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CalKnights"
+             xmlns:conv="clr-namespace:CalKnights.Converter"
              x:Class="CalKnights.MainPage"
              Visual="Material">
     <ContentPage.Padding>
@@ -14,9 +15,9 @@
         <local:CalKnightsViewModel />
     </ContentPage.BindingContext>
 
-    <!--<ContentPage.Resources>
+    <ContentPage.Resources>
         <ResourceDictionary>
-            <Style TargetType="Grid">
+            <!--<Style TargetType="Grid">
                 <Setter Property="RowSpacing" Value="2" />
                 <Setter Property="ColumnSpacing" Value="2" />
             </Style>
@@ -29,9 +30,18 @@
             <Style TargetType="Button">
                 <Setter Property="BorderWidth" Value="1" />
                 <Setter Property="BorderColor" Value="Black" />
-            </Style>
+            </Style>-->
+            <OnPlatform x:TypeArguments="x:String" 
+                x:Key="FontAwesomeRegular">
+                <On Platform="Android" 
+                    Value="fa-regular-400.otf#Regular" />
+                <On Platform="iOS" 
+                    Value="Font Awesome 5 Free" />
+            </OnPlatform>
+            
+            <conv:BoolListConverter x:Key="BoolListConverter"/>
         </ResourceDictionary>
-    </ContentPage.Resources>-->
+    </ContentPage.Resources>
 
     <ContentPage.Content>
         <ScrollView>
@@ -43,7 +53,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        
+
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -54,12 +64,12 @@
                     <Frame Grid.Row="0" Padding="10,0" BackgroundColor="AliceBlue">
                         <Label Text="사진" HorizontalTextAlignment="End"/>
                     </Frame>
-                    
+
                     <Frame Grid.Row="1" Padding="5,5">
                         <Image Source="{Binding OCRImageSource}" 
                                HorizontalOptions="CenterAndExpand" Aspect="AspectFill" />
                     </Frame>
-                    
+
                     <Frame Grid.Row="2" Padding="5,5" HeightRequest="40">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -67,17 +77,61 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            
+
                             <Button Grid.Column="0" Text="필터 초기화" />
                             <Button Grid.Column="1" Text="태그 초기화" />
-                            <Button Grid.Column="2" Text="사진 선택" Command="{Binding PickImageCommand}" IsEnabled="{Binding !ImageLoading}"/>
+                            <Button Grid.Column="2" Text="사진 선택" 
+                                    Command="{Binding PickImageCommand}" 
+                                    IsEnabled="{Binding ImageWaiting}"/>
 
                         </Grid>
                     </Frame>
 
-                    <Label Text="필터" Grid.Row="3" Padding="10,0" HorizontalTextAlignment="End"/>
+                    <Frame Grid.Row="3" Padding="10,0" BackgroundColor="AliceBlue">
+                        <Label HorizontalTextAlignment="End"
+                                   VerticalTextAlignment="Center"
+                                   Text="필터"/>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding FoldSelectorCommand}"
+                                CommandParameter="filter"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
 
-                    <Frame Grid.Row="4" Padding="5,5" HeightRequest="100">
+                    <Frame Grid.Row="4" Padding="5,5" HeightRequest="100"
+                           IsVisible="{Binding IsFrameVisible,
+                                               Converter={StaticResource BoolListConverter},
+                                               ConverterParameter=0}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" Text="필터 초기화" />
+                            <Button Grid.Column="1" Text="태그 초기화" />
+                            <Button Grid.Column="2" Text="사진 선택" 
+                                    Command="{Binding PickImageCommand}" 
+                                    IsEnabled="{Binding ImageWaiting}"/>
+                        </Grid>
+                    </Frame>
+
+                    <Frame Grid.Row="5" Padding="10,0" BackgroundColor="AliceBlue">
+                        <Label HorizontalTextAlignment="End"
+                                   VerticalTextAlignment="Center"
+                                   Text="태그"/>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding FoldSelectorCommand}"
+                                CommandParameter="tag"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
+
+                    <Frame Grid.Row="6" Padding="5,5" HeightRequest="200" 
+                           IsVisible="{Binding IsFrameVisible,
+                                               Converter={StaticResource BoolListConverter},
+                                               ConverterParameter=1}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -87,14 +141,29 @@
 
                             <Button Text="필터 초기화" />
                             <Button Text="태그 초기화" />
-                            <Button Text="사진 선택" Command="{Binding PickImageCommand}" IsEnabled="{Binding !ImageLoading}"/>
+                            <Button Text="사진 선택" Command="{Binding PickImageCommand}" 
+                                    IsEnabled="{Binding ImageWaiting}"/>
 
                         </Grid>
                     </Frame>
 
-                    <Label Text="태그" Grid.Row="5" Padding="10,0" HorizontalTextAlignment="End"/>
+                    <!--<Label Text="{Binding Path=Dicts.[vanguard]}" Grid.Row="7" Padding="10,0" HorizontalTextAlignment="End"/>-->
 
-                    <Frame Grid.Row="6" Padding="5,5" HeightRequest="200">
+                    <Frame Grid.Row="7" Padding="10,0" BackgroundColor="AliceBlue">
+                        <Label HorizontalTextAlignment="End"
+                                   VerticalTextAlignment="Center"
+                                   Text="정렬"/>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding FoldSelectorCommand}"
+                                CommandParameter="sort"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
+
+                <Frame Grid.Row="8" Padding="0" HeightRequest="40"
+                       IsVisible="{Binding IsFrameVisible,
+                                               Converter={StaticResource BoolListConverter},
+                                               ConverterParameter=2}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -104,24 +173,8 @@
 
                             <Button Text="필터 초기화" />
                             <Button Text="태그 초기화" />
-                            <Button Text="사진 선택" Command="{Binding PickImageCommand}" IsEnabled="{Binding !ImageLoading}"/>
-
-                        </Grid>
-                    </Frame>
-
-                    <Label Text="{Binding Path=Dicts.[vanguard]}" Grid.Row="7" Padding="10,0" HorizontalTextAlignment="End"/>
-
-                    <Frame Grid.Row="8" Padding="0" HeightRequest="40">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Button Text="필터 초기화" />
-                            <Button Text="태그 초기화" />
-                            <Button Text="사진 선택" Command="{Binding PickImageCommand}" IsEnabled="{Binding !ImageLoading}"/>
+                            <Button Text="사진 선택" Command="{Binding PickImageCommand}" 
+                                    IsEnabled="{Binding ImageWaiting}"/>
                         </Grid>
                     </Frame>
 
