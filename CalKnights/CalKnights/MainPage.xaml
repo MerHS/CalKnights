@@ -109,7 +109,7 @@
                         </Grid>
                     </Frame>
 
-                    <Label Text="정렬" Grid.Row="7" Padding="10,0" HorizontalTextAlignment="Start"/>
+                    <Label Text="{Binding Path=Dicts.[vanguard]}" Grid.Row="7" Padding="10,0" HorizontalTextAlignment="End"/>
 
                     <Frame Grid.Row="8" Padding="0" HeightRequest="40">
                         <Grid>

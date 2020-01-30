@@ -22,12 +22,16 @@ namespace CalKnights
 
         private bool _imageLoading = false;
         private ImageSource _ocrImageSource;
+        private Dictionary<string, string> _dicts;
 
         public CalKnightsViewModel()
         { 
             _tesseractApi = Resolver.Resolve<ITesseractApi>();
             _device = Resolver.Resolve<IDevice>();
-
+            _dicts = new Dictionary<string, string>
+            {
+                { "vanguard", "test" }
+            };
             //DigitCommand = new Command<string>(
             //    execute: async (string arg) =>
             //    {
@@ -109,6 +113,10 @@ namespace CalKnights
         public ImageSource OCRImageSource {
             private set { SetProperty(ref _ocrImageSource, value); }
             get { return _ocrImageSource; }
+        }
+
+        public Dictionary<string, string> Dicts {
+            get { return _dicts; }
         }
 
         public ICommand PickImageCommand { private set; get; }
