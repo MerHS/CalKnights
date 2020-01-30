@@ -119,7 +119,9 @@
     <ITunesArtwork Include="iTunesArtwork" />
     <ITunesArtwork Include="iTunesArtwork@2x" />
     <BundleResource Include="Resources\tessdata\kor.traineddata" />
-    <BundleResource Include="Resources\fa-regular-400.otf" />
+    <BundleResource Include="Resources\fa-regular-400.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </BundleResource>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />

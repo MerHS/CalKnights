@@ -9,7 +9,7 @@ namespace CalKnights
         {
             InitializeComponent();
 
-            SizeChanged += (sender, args) => portrait.IsVisible = !(landscape.IsVisible = Width > Height);
+            // SizeChanged += (sender, args) => portrait.IsVisible = !(landscape.IsVisible = Width > Height);
         }
     }
 }

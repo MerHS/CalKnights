@@ -74,7 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\tessdata\kor.traineddata" />
-    <AndroidAsset Include="Assets\fa-regular-400.otf" />
+    <AndroidAsset Include="Assets\fa-regular-400.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AndroidAsset>
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
